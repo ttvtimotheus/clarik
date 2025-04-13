@@ -23,7 +23,7 @@ import {
   RefreshCw, Shield, Home, CheckSquare
 } from "lucide-react";
 
-// Benutzer-Typ
+// Typ-Definitionen
 interface User {
   id: string;
   name: string;
@@ -32,6 +32,19 @@ interface User {
   created_at: string;
   is_admin: boolean;
   room_count: number;
+}
+
+interface AdminMapType {
+  [key: string]: boolean;
+}
+
+interface RoomCountMapType {
+  [key: string]: number;
+}
+
+interface AdminUser {
+  id: string;
+  is_admin: boolean;
 }
 
 export default function AdminUsersPage() {
@@ -72,7 +85,7 @@ export default function AdminUsersPage() {
       const userIds = usersData.map(user => user.id);
       
       // 2. Überprüfe, ob die is_admin-Spalte existiert und hole die Werte wenn möglich
-      let isAdminMap = {};
+      let isAdminMap: AdminMapType = {};
       try {
         // Dieser Aufruf könnte fehlschlagen, wenn die Spalte noch nicht existiert
         const { data: adminData, error: adminError } = await supabase
@@ -83,10 +96,11 @@ export default function AdminUsersPage() {
         
         if (!adminError && adminData) {
           // Erstelle eine Map der admin-User
-          isAdminMap = adminData.reduce((acc, user) => {
-            acc[user.id] = true;
-            return acc;
-          }, {});
+          adminData.forEach((user: any) => {
+            if (user && user.id) {
+              isAdminMap[user.id] = true;
+            }
+          });
         }
       } catch (err) {
         console.warn("is_admin spalte scheint nicht zu existieren:", err);
@@ -99,7 +113,7 @@ export default function AdminUsersPage() {
         .in('user_id', userIds);
 
       // Zähle Räume pro Benutzer
-      const roomCountMap = {};
+      const roomCountMap: RoomCountMapType = {};
       if (!participantError && participantData) {
         participantData.forEach(participant => {
           roomCountMap[participant.user_id] = (roomCountMap[participant.user_id] || 0) + 1;
@@ -144,9 +158,10 @@ export default function AdminUsersPage() {
     try {
       setProcessingAction(true);
       
+      // Füge explizit ein Typ-Assertion hinzu
       const { error } = await supabase
         .from('users')
-        .update({ is_admin: !currentValue })
+        .update({ is_admin: !currentValue } as any)
         .eq('id', userId);
         
       if (error) throw error;

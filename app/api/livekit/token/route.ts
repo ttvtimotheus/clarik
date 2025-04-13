@@ -85,11 +85,15 @@ export async function POST(req: NextRequest) {
       } else if (token instanceof Promise) {
         // Falls toJwt() ein Promise zurückgibt (je nach Implementierung)
         const resolvedToken = await token;
-        console.log('Generated token (from Promise) successfully:', typeof resolvedToken, 'length:', resolvedToken.length);
-        return NextResponse.json({ token: resolvedToken });
-      } else {
-        throw new Error('Unexpected token type: ' + typeof token);
+        if (typeof resolvedToken === 'string') {
+          console.log('Generated token (from Promise) successfully:', typeof resolvedToken, 'length:', resolvedToken.length);
+          return NextResponse.json({ token: resolvedToken });
+        }
       }
+      
+      // Fallback für andere Fälle
+      console.error('Unexpected token type:', typeof token);
+      throw new Error('Unexpected token type: ' + typeof token);
     } catch (error) {
       console.error('Error generating LiveKit token:', error);
       return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 });

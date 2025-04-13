@@ -376,18 +376,16 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
   
   const supabase = createClient();
   
-  // Funktion zum Protokollieren von LiveKit-Paketversionen
+  // Protokolliere Debug-Informationen zur Laufzeit
   useEffect(() => {
-    // Zeige LiveKit-Paketversionen an, um Kompatibilitätsfehlern vorzubeugen
-    try {
-      const livekitClientVersion = require('livekit-client/package.json').version;
-      const livekitComponentsVersion = require('@livekit/components-react/package.json').version;
-      console.log('LiveKit client version:', livekitClientVersion);
-      console.log('LiveKit components version:', livekitComponentsVersion);
-    } catch (err) {
-      console.log('Could not determine LiveKit versions');
-    }
-  }, []);
+    // Protokolliere wichtige Umgebungsvariablen und Status
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('LiveKit URL:', process.env.NEXT_PUBLIC_LIVEKIT_URL);
+    console.log('User Role:', userRole);
+    
+    // Informiere über LiveKit-Verbindung
+    console.log('Starting LiveKit connection setup...');
+  }, [userRole]);
   
   // Hole den Raum und überprüfe die Berechtigungen
   useEffect(() => {

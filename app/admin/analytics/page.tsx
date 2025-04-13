@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Home, ChevronLeft, Line, Users, Mic } from "lucide-react";
+import { BarChart3, Home, ChevronLeft, LineChart, Users, Mic } from "lucide-react";
 
 export default function AdminAnalyticsPage() {
   return (
@@ -77,7 +77,7 @@ export default function AdminAnalyticsPage() {
               <CardContent>
                 <div className="h-[300px] w-full flex items-center justify-center border rounded-md bg-muted/20">
                   <div className="text-center">
-                    <Line className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                    <LineChart className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">Diagramm zur Raumnutzung wird hier angezeigt</p>
                     <p className="text-xs text-muted-foreground mt-1">Wird in einer späteren Version implementiert</p>
                   </div>

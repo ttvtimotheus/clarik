@@ -9,6 +9,7 @@ export function Footer() {
           <Link href="/impressum" className="text-sm text-muted-foreground hover:text-primary">Impressum</Link>
           <Link href="/datenschutz" className="text-sm text-muted-foreground hover:text-primary">Datenschutz</Link>
           <Link href="/agb" className="text-sm text-muted-foreground hover:text-primary">AGB</Link>
+          <Link href="/status" className="text-sm text-muted-foreground hover:text-primary">Status</Link>
         </div>
       </div>
     </footer>

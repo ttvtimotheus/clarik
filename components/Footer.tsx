@@ -8,6 +8,7 @@ export function Footer() {
         <div className="space-x-4">
           <Link href="/impressum" className="text-sm text-muted-foreground hover:text-primary">Impressum</Link>
           <Link href="/datenschutz" className="text-sm text-muted-foreground hover:text-primary">Datenschutz</Link>
+          <Link href="/agb" className="text-sm text-muted-foreground hover:text-primary">AGB</Link>
         </div>
       </div>
     </footer>

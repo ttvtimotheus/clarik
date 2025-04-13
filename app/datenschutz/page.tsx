@@ -15,58 +15,117 @@ export default function DatenschutzPage() {
       </header>
       <main className="flex-1">
         <section className="container py-12">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4"
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
             Zurück zur Startseite
           </Link>
-          
+
           <h1 className="text-3xl font-bold mb-8">Datenschutzerklärung</h1>
-          
+
           <div className="prose prose-invert max-w-none">
-            <h2>1. Datenschutz auf einen Blick</h2>
-            <h3>Allgemeine Hinweise</h3>
+            <h2>1. Allgemeine Hinweise</h2>
             <p>
-              Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, 
-              wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich 
-              identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer 
-              unter diesem Text aufgeführten Datenschutzerklärung.
+              Der Schutz deiner personenbezogenen Daten ist mir wichtig. Diese Website dient einem
+              nicht-kommerziellen Zweck und verarbeitet Daten ausschließlich im Rahmen der DSGVO.
+              Personenbezogene Daten werden nur verarbeitet, wenn dies technisch erforderlich ist oder
+              du ausdrücklich zustimmst.
             </p>
 
-            <h3>Datenerfassung auf dieser Website</h3>
+            <h2>2. Verantwortlicher</h2>
             <p>
-              Wer ist verantwortlich für die Datenerfassung auf dieser Website?<br />
-              Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten 
-              können Sie dem Impressum dieser Website entnehmen.
+              Timo Haseloff<br />
+              Breite Straße 7<br />
+              39288 Burg<br />
+              Deutschland
             </p>
 
-            <h3>Wie erfassen wir Ihre Daten?</h3>
+            <h2>3. Erhobene Daten beim Besuch der Website</h2>
             <p>
-              Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z. B. 
-              um Daten handeln, die Sie in ein Kontaktformular eingeben.
+              Beim Besuch dieser Website werden automatisch Daten durch den Webserver bzw. deinen Browser
+              übermittelt:
             </p>
+            <ul>
+              <li>IP-Adresse (gekürzt gespeichert, sofern möglich)</li>
+              <li>Datum und Uhrzeit der Anfrage</li>
+              <li>Browsertyp und -version</li>
+              <li>Betriebssystem</li>
+              <li>Referrer-URL</li>
+              <li>Hostname des zugreifenden Geräts</li>
+            </ul>
             <p>
-              Andere Daten werden automatisch beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor 
-              allem technische Daten (z. B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs). Die 
-              Erfassung dieser Daten erfolgt automatisch, sobald Sie diese Website betreten.
+              Diese Daten sind technisch notwendig, um die Website bereitzustellen, und werden nicht mit
+              anderen Daten zusammengeführt.
             </p>
 
-            <h3>Wofür nutzen wir Ihre Daten?</h3>
+            <h2>4. Supabase (Auth & Datenverarbeitung)</h2>
             <p>
-              Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. 
-              Andere Daten können zur Analyse Ihres Nutzerverhaltens verwendet werden.
+              Diese Website verwendet <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">Supabase</a> für die Benutzerregistrierung, Authentifizierung und Datenhaltung.
+              Supabase speichert:
+            </p>
+            <ul>
+              <li>E-Mail-Adresse (für Login und Kommunikation)</li>
+              <li>Zeitpunkt der Registrierung und Logins</li>
+              <li>ggf. Profildaten, wenn du diese aktiv ergänzt</li>
+              <li>technische Daten wie IP-Adresse oder Gerätetyp</li>
+            </ul>
+            <p>
+              Anbieter: Supabase Inc., 970 Toa Payoh N, Singapore<br />
+              Datenschutz: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">https://supabase.com/privacy</a>
             </p>
 
-            <h3>Welche Rechte haben Sie bezüglich Ihrer Daten?</h3>
+            <h2>5. LiveKit (Audio-Kommunikation)</h2>
             <p>
-              Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer 
-              gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung, 
-              Sperrung oder Löschung dieser Daten zu verlangen. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz 
-              können Sie sich jederzeit unter der im Impressum angegebenen Adresse an uns wenden. Des Weiteren steht 
-              Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu.
+              Für Sprachräume und Audioübertragung wird <a href="https://livekit.io" target="_blank" rel="noopener noreferrer">LiveKit</a> verwendet.
+              Dabei wird ein temporäres Sprachstreaming aufgebaut. Es werden:
             </p>
+            <ul>
+              <li>keine Gespräche gespeichert</li>
+              <li>keine Inhalte analysiert</li>
+              <li>keine Sprachdaten dauerhaft verarbeitet</li>
+            </ul>
+            <p>
+              LiveKit generiert „Tokens“ zur temporären Authentifizierung. Diese enthalten technische Daten
+              wie deine User-ID und Raum-Informationen.<br />
+              Anbieter: LiveKit Inc., San Francisco, USA<br />
+              Datenschutz: <a href="https://livekit.io/privacy" target="_blank" rel="noopener noreferrer">https://livekit.io/privacy</a>
+            </p>
+
+            <h2>6. Cookies</h2>
+            <p>
+              Diese Website verwendet keine Cookies – außer technisch notwendige Session-Cookies bei der
+              Anmeldung über Supabase.
+            </p>
+
+            <h2>7. Kontaktaufnahme</h2>
+            <p>
+              Wenn du mir per E-Mail schreibst, werden deine Angaben ausschließlich zur Bearbeitung deiner
+              Anfrage verwendet und nicht an Dritte weitergegeben.
+            </p>
+
+            <h2>8. Deine Rechte</h2>
+            <p>Du hast jederzeit das Recht auf:</p>
+            <ul>
+              <li>Auskunft über deine gespeicherten Daten</li>
+              <li>Berichtigung unrichtiger Daten</li>
+              <li>Löschung deiner Daten</li>
+              <li>Einschränkung der Verarbeitung</li>
+              <li>Widerspruch gegen die Verarbeitung</li>
+              <li>Datenübertragbarkeit</li>
+            </ul>
+            <p>
+              Zur Wahrnehmung deiner Rechte reicht eine formlose E-Mail an mich.
+            </p>
+
+            <h2>9. Änderungen</h2>
+            <p>
+              Ich behalte mir vor, diese Datenschutzerklärung bei technischen Änderungen oder gesetzlicher
+              Notwendigkeit zu aktualisieren.
+            </p>
+
+            <p><strong>Stand:</strong> April 2025</p>
           </div>
         </section>
       </main>

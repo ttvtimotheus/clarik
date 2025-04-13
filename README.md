@@ -1,28 +1,52 @@
-# clarik.app
+<div align="center">
 
-Eine moderne Plattform für sprachbasierte Diskussionen in Themenräumen mit Fokus auf Klarheit, Design und Erwachsenen-UX.
+# 🎙️ clarik.app
 
-## Features
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-green?style=for-the-badge&logo=supabase)](https://supabase.io/)
+[![LiveKit](https://img.shields.io/badge/LiveKit-red?style=for-the-badge)](https://livekit.io/)
 
-- **Nutzer-Authentifizierung**: Magic Link, Passkey
-- **Raumverwaltung**: Erstellen, Beitreten, Verlassen
-- **Rollenvergabe**: Moderator, Speaker, Listener
-- **Raum-Status**: Geplant, Live, Beendet
-- **Echtzeit-Audio**: WebRTC-basierte Sprachdiskussionen mit LiveKit
-- **Hand heben**: Speaker-Anfragen durch Hand-heben-Funktion
-- **Echtzeitindikatoren**: Visuelle Anzeige der aktiven Sprecher
-- **Realtime Updates**: Echtzeit-Änderungen bei Teilnehmern und Raumstatus
-- **Responsive Design**: Mobile-freundliches UI mit modernem Look
+**Eine moderne Plattform für sprachbasierte Diskussionen in Themenräumen mit Fokus auf Klarheit, Design und Erwachsenen-UX.**
 
-## Tech-Stack
+[Funktionen](#-funktionen) • 
+[Tech-Stack](#-tech-stack) • 
+[Installation](#-installation) • 
+[Projektstruktur](#-projektstruktur) • 
+[Deployment](#-deployment) • 
+[Lizenz](#-lizenz)
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: Supabase (Auth, PostgreSQL, Realtime)
-- **WebRTC Audio**: LiveKit Client und Server-SDK
-- **State Management**: Zustand
-- **Deployment**: Vercel/Netlify (Frontend), Supabase (Backend), LiveKit (Audio)
+</div>
 
-## Installation
+## 🚀 Funktionen
+
+| Feature | Beschreibung |
+|---------|-------------|
+| 🔐 **Nutzer-Authentifizierung** | Magic Link, Passkey |
+| 🏠 **Raumverwaltung** | Erstellen, Beitreten, Verlassen |
+| 👥 **Rollenvergabe** | Moderator, Speaker, Listener |
+| 🟢 **Raum-Status** | Geplant, Live, Beendet |
+| 🎙️ **Echtzeit-Audio** | WebRTC-basierte Sprachdiskussionen mit LiveKit |
+| ✋ **Hand heben** | Speaker-Anfragen durch Hand-heben-Funktion |
+| 📊 **Echtzeitindikatoren** | Visuelle Anzeige der aktiven Sprecher |
+| ⚡ **Realtime Updates** | Echtzeit-Änderungen bei Teilnehmern und Raumstatus |
+| 📱 **Responsive Design** | Mobile-freundliches UI mit modernem Look |
+
+## 🛠️ Tech-Stack
+
+<div align="center">
+
+| Bereich | Technologien |
+|--------|---------------|
+| **🖥️ Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui |
+| **🗄️ Backend** | Supabase (Auth, PostgreSQL, Realtime) |
+| **🔊 WebRTC Audio** | LiveKit Client und Server-SDK |
+| **🧠 State Management** | Zustand |
+| **☁️ Deployment** | Vercel/Netlify (Frontend), Supabase (Backend), LiveKit (Audio) |
+
+</div>
+
+## 🔧 Installation
 
 1. Repository klonen:
    ```bash
@@ -63,37 +87,37 @@ Eine moderne Plattform für sprachbasierte Diskussionen in Themenräumen mit Fok
 
 7. App unter `http://localhost:3000` öffnen
 
-## Projektstruktur
+## 📂 Projektstruktur
 
 ```
-/app - Next.js App Router Seiten
-/components - UI-Komponenten
-  /auth - Authentifizierungs-Komponenten
-  /providers - Context Provider
-  /room - Raum-spezifische Komponenten
-  /ui - shadcn/ui Komponenten
-/lib - Hilfsfunktionen und Module
-  /supabase - Supabase Client, Types und Schema
-  /store - Zustand Store für State Management
-/middleware.ts - Auth-Routing-Middleware
+📁 /app                    # Next.js App Router Seiten
+📁 /components             # UI-Komponenten
+   ├── 🔑 /auth            # Authentifizierungs-Komponenten
+   ├── 🔌 /providers       # Context Provider
+   ├── 🎙️ /room            # Raum-spezifische Komponenten
+   └── 🧩 /ui              # shadcn/ui Komponenten
+📁 /lib                    # Hilfsfunktionen und Module
+   ├── 🔄 /supabase        # Supabase Client, Types und Schema
+   └── 🗃️ /store           # Zustand Store für State Management
+📄 middleware.ts           # Auth-Routing-Middleware
 ```
 
-## Deployment
+## 🚀 Deployment
 
-### Frontend (Vercel/Netlify)
+### 🌐 Frontend (Vercel/Netlify)
 
 1. Repository auf GitHub, GitLab oder Bitbucket pushen
 2. Mit Vercel/Netlify verbinden
 3. Umgebungsvariablen konfigurieren
 
-### Backend (Supabase)
+### 🔐 Backend (Supabase)
 
 Das Backend ist bereits bei Supabase gehostet. Keine zusätzlichen Deployment-Schritte erforderlich.
 
-### Audio-Server (LiveKit)
+### 🔊 Audio-Server (LiveKit)
 
 Die WebRTC-Audio-Funktionalität wird über LiveKit Cloud gehostet. Konfigurieren Sie die entsprechenden Umgebungsvariablen im Frontend-Deployment.
 
-## Lizenz
+## 📜 Lizenz
 
 MIT

@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react"
 
 import { Header } from "@/components/Header"
 import { Button } from "@/components/ui/button"
+import { Footer } from "@/components/Footer"
 
 export default function CategoryPage() {
   const { name } = useParams()
@@ -46,15 +47,7 @@ export default function CategoryPage() {
           </div>
         </section>
       </main>
-      <footer className="border-t border-border py-6">
-        <div className="container flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} clarik.app</p>
-          <div className="space-x-4">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary">Impressum</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary">Datenschutz</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { LoginForm } from '@/components/auth/LoginForm'
 import Link from 'next/link'
+import { Footer } from "@/components/Footer"
 
 export default function LoginPage() {
   return (
@@ -28,6 +29,7 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import * as React from "react"
 import { Header } from "@/components/Header"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { Footer } from "@/components/Footer"
 
 export default function ExplorePage() {
   // Kategorien als Button-Kacheln
@@ -72,15 +73,7 @@ export default function ExplorePage() {
           </div>
         </section>
       </main>
-      <footer className="border-t border-border py-6">
-        <div className="container flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} clarik.app</p>
-          <div className="space-x-4">
-            <Link href="/impressum" className="text-sm text-muted-foreground hover:text-primary">Impressum</Link>
-            <Link href="/datenschutz" className="text-sm text-muted-foreground hover:text-primary">Datenschutz</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

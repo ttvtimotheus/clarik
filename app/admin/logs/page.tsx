@@ -15,8 +15,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function AdminLogsPage() {
   const [filter, setFilter] = useState("all");
   
+  // Log-Typ-Definition
+  type LogEntry = {
+    id: number;
+    type: "info" | "warning" | "error";
+    timestamp: string;
+    message: string;
+  };
+
   // Demo-Logs
-  const demoLogs = [
+  const demoLogs: LogEntry[] = [
     { id: 1, type: "info", timestamp: "2025-04-13T22:45:12", message: "Benutzer 'admin' hat sich angemeldet" },
     { id: 2, type: "info", timestamp: "2025-04-13T22:30:05", message: "Neuer Raum 'Diskussion über Tech-Trends' wurde erstellt" },
     { id: 3, type: "warning", timestamp: "2025-04-13T21:15:45", message: "Erhöhte API-Latenz festgestellt (250ms)" },
@@ -35,7 +43,7 @@ export default function AdminLogsPage() {
     : demoLogs.filter(log => log.type === filter);
   
   // Funktion zum Rendern der Log-Zeilen mit farblicher Markierung
-  const renderLogLine = (log) => {
+  const renderLogLine = (log: LogEntry) => {
     let bgClass = "";
     let textClass = "";
     

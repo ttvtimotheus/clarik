@@ -80,13 +80,13 @@ export async function POST(req: NextRequest) {
       
       // Stelle sicher, dass token ein String ist
       if (typeof token === 'string') {
-        console.log('Generated token successfully:', typeof token, 'length:', token.length);
+        console.log('Generated token successfully:', typeof token);
         return NextResponse.json({ token: token });
       } else if (token instanceof Promise) {
         // Falls toJwt() ein Promise zurückgibt (je nach Implementierung)
         const resolvedToken = await token;
         if (typeof resolvedToken === 'string') {
-          console.log('Generated token (from Promise) successfully:', typeof resolvedToken, 'length:', resolvedToken.length);
+          console.log('Generated token (from Promise) successfully:', typeof resolvedToken);
           return NextResponse.json({ token: resolvedToken });
         }
       }

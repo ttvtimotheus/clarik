@@ -338,17 +338,56 @@ function RoomControls() {
   );
 }
 
+// Komponente für die Rauminfo innerhalb des LiveKit-Kontexts
+function RoomInfo({ roomName, room }: { roomName: string; room: any }) {
+  const connectionState = useConnectionState();
+  
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <h2 className="text-xl font-bold mb-2">{roomName || room?.title || 'Audio-Raum'}</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Badge variant="outline" className="capitalize">
+            {room?.status || 'live'}
+          </Badge>
+          <Badge variant="outline">{room?.category}</Badge>
+          
+          <div className="ml-auto flex items-center gap-1 text-sm text-muted-foreground">
+            <ConnectionStatusIndicator state={connectionState} />
+          </div>
+        </div>
+        
+        {room?.description && (
+          <p className="text-sm text-muted-foreground">{room.description}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('listener');
   const [connecting, setConnecting] = useState(true);
   const [room, setRoom] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const connectionState = useConnectionState();
   
   const supabase = createClient();
+  
+  // Funktion zum Protokollieren von LiveKit-Paketversionen
+  useEffect(() => {
+    // Zeige LiveKit-Paketversionen an, um Kompatibilitätsfehlern vorzubeugen
+    try {
+      const livekitClientVersion = require('livekit-client/package.json').version;
+      const livekitComponentsVersion = require('@livekit/components-react/package.json').version;
+      console.log('LiveKit client version:', livekitClientVersion);
+      console.log('LiveKit components version:', livekitComponentsVersion);
+    } catch (err) {
+      console.log('Could not determine LiveKit versions');
+    }
+  }, []);
   
   // Hole den Raum und überprüfe die Berechtigungen
   useEffect(() => {
@@ -421,8 +460,16 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
           throw new Error('Failed to get token');
         }
         
-        const { token: livekitToken } = await response.json();
-        setToken(livekitToken);
+        const data = await response.json();
+        console.log('Token response data:', data);
+        
+        if (typeof data.token === 'string') {
+          setToken(data.token);
+        } else {
+          console.error('Invalid token format, expected string but got:', typeof data.token);
+          throw new Error('Invalid token format received from server');
+        }
+        
         setConnecting(false);
       } catch (err) {
         console.error('Error fetching room and participant:', err);
@@ -443,6 +490,14 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
   
   // Konfiguriere LiveKit-Optionen basierend auf der Benutzerrolle
   const canPublish = userRole === 'moderator' || userRole === 'speaker';
+  
+  // Debug-Logging für Verbindungsprobleme
+  useEffect(() => {
+    console.log('Token value:', token ? 'Token exists (length: ' + token.length + ')' : 'No token');
+    console.log('LiveKit URL:', process.env.NEXT_PUBLIC_LIVEKIT_URL);
+    console.log('User Role:', userRole);
+    console.log('Can Publish:', canPublish);
+  }, [token, userRole, canPublish]);
   
   // Benutzerinfo für LiveKit-Metadaten
   const getUserInfo = useCallback(async () => {
@@ -470,6 +525,7 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
   
   // Callback für erfolgreiche Verbindung
   const handleConnected = useCallback(() => {
+    console.log('LiveKit connection established successfully!');
     // Ausgeführt bei Verbindungsaufbau
     getUserInfo().then(userInfo => {
       if (userInfo) {
@@ -494,13 +550,56 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <p className="text-destructive">{error}</p>
-        <Button 
-          variant="outline" 
-          className="mt-4"
-          onClick={() => router.push('/explore')}
-        >
-          Zurück zur Übersicht
-        </Button>
+        <div className="flex space-x-4 mt-4">
+          <Button 
+            variant="outline"
+            onClick={() => router.push('/explore')}
+          >
+            Zurück zur Übersicht
+          </Button>
+          
+          {/* Debug-Button für direkten LiveKit-Test */}
+          <Button 
+            variant="default"
+            onClick={async () => {
+              try {
+                // Hartcodierter Test-Token direkt vom LiveKit-Dashboard
+                const testToken = "Hier einen gültigen Test-Token aus dem LiveKit-Dashboard einfügen";
+                
+                // Optional: API-Aufruf zur Tokengenerierung für Debugging
+                const response = await fetch('/api/livekit/token', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    roomId,
+                    role: 'moderator', // Explizit als Moderator für Test
+                  }),
+                });
+                
+                const data = await response.json();
+                console.log('Debug API response:', data);
+                
+                if (data.token && typeof data.token === 'string') {
+                  setToken(data.token);
+                  setError(null);
+                  toast({
+                    title: "Debug-Modus aktiviert",
+                    description: "Versuche direkte Verbindung mit neuem Token"
+                  });
+                }
+              } catch (err) {
+                console.error('Debug connection error:', err);
+                toast({
+                  title: "Fehler",
+                  description: "Auch im Debug-Modus konnte keine Verbindung hergestellt werden",
+                  variant: "destructive"
+                });
+              }
+            }}
+          >
+            Debug-Verbindung testen
+          </Button>
+        </div>
       </div>
     );
   }
@@ -511,26 +610,6 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
   
   return (
     <div className="space-y-4">
-      <Card>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-bold mb-2">{roomName || room?.title || 'Audio-Raum'}</h2>
-          <div className="flex items-center gap-2 mb-4">
-            <Badge variant="outline" className="capitalize">
-              {room?.status || 'live'}
-            </Badge>
-            <Badge variant="outline">{room?.category}</Badge>
-            
-            <div className="ml-auto flex items-center gap-1 text-sm text-muted-foreground">
-              <ConnectionStatusIndicator state={connectionState} />
-            </div>
-          </div>
-          
-          {room?.description && (
-            <p className="text-sm text-muted-foreground">{room.description}</p>
-          )}
-        </CardContent>
-      </Card>
-      
       <LiveKitRoom
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
@@ -538,9 +617,11 @@ export default function VoiceRoom({ roomId, roomName }: VoiceRoomProps) {
         audio={canPublish}
         video={false}
         onConnected={handleConnected}
-        className="hidden"
+        onDisconnected={(reason) => console.error('Disconnected from LiveKit:', reason)}
+        onError={(error) => console.error('LiveKit error:', error)}
       >
         <RoomAudioRenderer />
+        <RoomInfo roomName={roomName} room={room} />
         <ParticipantsList />
         <RoomControls />
       </LiveKitRoom>

@@ -54,26 +54,46 @@ export async function POST(req: NextRequest) {
     const apiSecret = process.env.LIVEKIT_API_SECRET;
     
     if (!apiKey || !apiSecret) {
+      console.error('LiveKit API key or secret is missing');
       return NextResponse.json({ error: 'LiveKit configuration is missing' }, { status: 500 });
     }
     
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: userId,
-      name: session.user.email, // Benutze die E-Mail als Anzeigename oder hole den Namen aus dem Profil
-      ttl: 60 * 60, // Token ist 1 Stunde gültig
-    });
-
-    // Raumberechtigung hinzufügen
-    at.addGrant({
-      roomJoin: true,
-      room: roomId,
-      canPublish: participantRole === 'speaker' || participantRole === 'moderator',
-      canSubscribe: true,
-    });
-
-    const token = at.toJwt();
+    console.log('Generating token for room:', roomId, 'with role:', participantRole);
+    console.log('LiveKit URL:', process.env.NEXT_PUBLIC_LIVEKIT_URL);
     
-    return NextResponse.json({ token });
+    try {
+      const at = new AccessToken(apiKey, apiSecret, {
+        identity: userId,
+        name: session.user.email, // Benutze die E-Mail als Anzeigename oder hole den Namen aus dem Profil
+        ttl: 60 * 60, // Token ist 1 Stunde gültig
+      });
+
+      // Raumberechtigung hinzufügen
+      at.addGrant({
+        roomJoin: true,
+        room: roomId,
+        canPublish: participantRole === 'speaker' || participantRole === 'moderator',
+        canSubscribe: true,
+      });
+
+      const token = at.toJwt();
+      
+      // Stelle sicher, dass token ein String ist
+      if (typeof token === 'string') {
+        console.log('Generated token successfully:', typeof token, 'length:', token.length);
+        return NextResponse.json({ token: token });
+      } else if (token instanceof Promise) {
+        // Falls toJwt() ein Promise zurückgibt (je nach Implementierung)
+        const resolvedToken = await token;
+        console.log('Generated token (from Promise) successfully:', typeof resolvedToken, 'length:', resolvedToken.length);
+        return NextResponse.json({ token: resolvedToken });
+      } else {
+        throw new Error('Unexpected token type: ' + typeof token);
+      }
+    } catch (error) {
+      console.error('Error generating LiveKit token:', error);
+      return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error generating LiveKit token:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

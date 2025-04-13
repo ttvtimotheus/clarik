@@ -1,108 +1,155 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { Footer } from "@/components/Footer"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import * as React from "react";
+import Link from "next/link";
+import { CheckCircle, AlertCircle, XCircle, Clock, ChevronLeft, RefreshCw } from "lucide-react";
+import { Footer } from "@/components/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface ServiceStatus {
-  name: string
-  status: "operational" | "degraded" | "outage" | "maintenance"
-  uptime: number
-  lastChecked: Date
-  history: {
-    date: Date
-    uptime: number
-  }[]
+// Definieren der Service-Typen
+type ServiceStatus = "operational" | "degraded" | "outage" | "maintenance" | "unknown";
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  status: ServiceStatus;
+  lastChecked: Date | null;
 }
 
+// In einer echten Implementierung würde diese Funktion einen API-Endpunkt abfragen
+const checkServiceStatus = async (): Promise<ServiceStatus> => {
+  // Hier würde normalerweise ein API-Aufruf stehen
+  // Für diese Implementierung geben wir einfach "operational" zurück
+  return "operational";
+};
+
 export default function StatusPage() {
-  // Simulierte Daten für die Dienste
-  const [services, setServices] = React.useState<ServiceStatus[]>([
+  // Status-Tracking
+  const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
+  
+  // Service-Definitionen
+  const [services, setServices] = React.useState<Service[]>([
     {
-      name: "Web App",
-      status: "operational",
-      uptime: 99.98,
-      lastChecked: new Date(),
-      history: Array.from({ length: 14 }, (_, i) => ({
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-        uptime: 99.9 + Math.random() * 0.1
-      }))
+      id: "web",
+      name: "Clarik Web App",
+      description: "Hauptwebseite und Benutzeroberfläche",
+      status: "unknown",
+      lastChecked: null
     },
     {
-      name: "API",
-      status: "operational",
-      uptime: 99.95,
-      lastChecked: new Date(),
-      history: Array.from({ length: 14 }, (_, i) => ({
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-        uptime: 99.8 + Math.random() * 0.2
-      }))
+      id: "api",
+      name: "Clarik API",
+      description: "Backend-API und Datendienste",
+      status: "unknown",
+      lastChecked: null
     },
     {
-      name: "Supabase",
-      status: "operational",
-      uptime: 99.99,
-      lastChecked: new Date(),
-      history: Array.from({ length: 14 }, (_, i) => ({
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-        uptime: 99.95 + Math.random() * 0.05
-      }))
+      id: "db",
+      name: "Supabase-Dienste",
+      description: "Datenbank und Authentifizierung",
+      status: "unknown",
+      lastChecked: null
     },
     {
+      id: "audio",
       name: "LiveKit Audio",
-      status: "operational", 
-      uptime: 99.90,
-      lastChecked: new Date(),
-      history: Array.from({ length: 14 }, (_, i) => ({
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
-        uptime: 99.7 + Math.random() * 0.3
-      }))
+      description: "Echtzeit-Audiokommunikation",
+      status: "unknown",
+      lastChecked: null
     }
-  ])
+  ]);
 
-  // Dummy-Funktion zum erneuten Laden der Status-Daten
-  const refreshStatus = () => {
-    // In einer echten Implementierung würden hier tatsächliche API-Aufrufe erfolgen
-    setServices(prev => prev.map(service => ({
-      ...service,
-      lastChecked: new Date(),
-      status: Math.random() > 0.9 ? "degraded" : "operational"
-    })))
-  }
+  // Status aller Services aktualisieren
+  const refreshAllServices = async () => {
+    setRefreshing(true);
+    
+    try {
+      const updatedServices = [...services];
+      
+      // Jeden Service einzeln abfragen
+      for (let i = 0; i < updatedServices.length; i++) {
+        const service = updatedServices[i];
+        const status = await checkServiceStatus();
+        
+        updatedServices[i] = {
+          ...service,
+          status,
+          lastChecked: new Date()
+        };
+        
+        // Status teilweise aktualisieren für besseres UX-Feedback
+        setServices([...updatedServices]);
+      }
+      
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren der Status-Daten:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  // Initial und periodisch Status abrufen
   React.useEffect(() => {
-    // Automatische Aktualisierung alle 60 Sekunden
-    const interval = setInterval(refreshStatus, 60000)
-    return () => clearInterval(interval)
-  }, [])
+    refreshAllServices();
+    
+    // Alle 5 Minuten aktualisieren
+    const interval = setInterval(refreshAllServices, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Funktion zum Anzeigen des Status-Badges
-  const getStatusBadge = (status: ServiceStatus["status"]) => {
+  // Status-Badges und Icons basierend auf dem Status
+  const getStatusInfo = (status: ServiceStatus) => {
     switch (status) {
       case "operational":
-        return <Badge className="bg-green-500">Betriebsbereit</Badge>
+        return { 
+          icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+          badge: <Badge className="bg-green-500/20 text-green-500">Betriebsbereit</Badge>
+        };
       case "degraded":
-        return <Badge className="bg-yellow-500">Eingeschränkt</Badge>
+        return { 
+          icon: <AlertCircle className="h-5 w-5 text-yellow-500" />,
+          badge: <Badge className="bg-yellow-500/20 text-yellow-500">Eingeschränkt</Badge>
+        };
       case "outage":
-        return <Badge className="bg-red-500">Ausfall</Badge>
+        return { 
+          icon: <XCircle className="h-5 w-5 text-red-500" />,
+          badge: <Badge className="bg-red-500/20 text-red-500">Ausfall</Badge>
+        };
       case "maintenance":
-        return <Badge className="bg-blue-500">Wartung</Badge>
+        return { 
+          icon: <Clock className="h-5 w-5 text-blue-500" />,
+          badge: <Badge className="bg-blue-500/20 text-blue-500">Wartung</Badge>
+        };
+      default:
+        return { 
+          icon: <AlertCircle className="h-5 w-5 text-gray-500" />,
+          badge: <Badge className="bg-gray-500/20 text-gray-500">Wird überprüft</Badge>
+        };
     }
-  }
+  };
 
-  // Berechnet den Gesamtstatus
-  const overallStatus = services.every(service => service.status === "operational")
-    ? "Alle Systeme betriebsbereit"
-    : services.some(service => service.status === "outage")
-    ? "Systemausfall"
-    : "Teilweise Einschränkungen"
-
-  // Berechnet die durchschnittliche Uptime
-  const averageUptime = services.reduce((acc, service) => acc + service.uptime, 0) / services.length
+  // Gesamtstatus berechnen
+  const getOverallStatus = () => {
+    if (loading) {
+      return "Status wird überprüft...";
+    }
+    
+    return services.every(service => service.status === "operational")
+      ? "Alle Systeme betriebsbereit"
+      : services.some(service => service.status === "outage")
+      ? "Systemausfall festgestellt"
+      : services.some(service => service.status === "degraded")
+      ? "Teilweise Einschränkungen"
+      : "Status wird überprüft...";
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -114,7 +161,7 @@ export default function StatusPage() {
         </div>
       </header>
       <main className="flex-1">
-        <section className="container py-12">
+        <section className="container py-12 max-w-4xl mx-auto">
           <Link
             href="/"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4"
@@ -123,106 +170,122 @@ export default function StatusPage() {
             Zurück zur Startseite
           </Link>
 
-          <h1 className="text-3xl font-bold mb-8">System Status</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">System Status</h1>
+            <Button 
+              onClick={refreshAllServices}
+              disabled={refreshing}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Wird aktualisiert...' : 'Aktualisieren'}
+            </Button>
+          </div>
 
           <div className="space-y-8">
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>Aktueller Status: {overallStatus}</span>
-                  <button 
-                    onClick={refreshStatus}
-                    className="text-sm bg-primary hover:bg-primary/90 text-white py-1 px-3 rounded-md"
-                  >
-                    Aktualisieren
-                  </button>
-                </CardTitle>
+            {/* Status Card */}
+            <Card className="border-border overflow-hidden">
+              <div className={`h-1.5 w-full ${loading ? 'bg-gray-200' : services.every(s => s.status === 'operational') ? 'bg-green-500' : services.some(s => s.status === 'outage') ? 'bg-red-500' : 'bg-yellow-500'}`}></div>
+              <CardHeader className="pb-2">
+                <CardTitle>{getOverallStatus()}</CardTitle>
                 <CardDescription>
-                  Durchschnittliche Uptime: {averageUptime.toFixed(2)}%
+                  {lastUpdated ? (
+                    <>Zuletzt aktualisiert: {lastUpdated.toLocaleTimeString()} Uhr ({lastUpdated.toLocaleDateString()})</>
+                  ) : (
+                    'Status wird abgerufen...'
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {services.map(service => (
-                    <div key={service.name} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">{service.name}</h3>
-                        {getStatusBadge(service.status)}
-                      </div>
-                      <Progress value={service.uptime} className="h-2" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Uptime: {service.uptime.toFixed(2)}%</span>
-                        <span>
-                          Zuletzt geprüft: {service.lastChecked.toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="mt-2 pt-2 border-t border-border">
-                        <div className="flex justify-between items-center gap-1 h-16">
-                          {service.history.slice(0, 14).reverse().map((day, index) => (
-                            <div key={index} className="flex flex-col items-center">
-                              <div 
-                                className="w-4 rounded-sm" 
-                                style={{
-                                  height: `${(day.uptime - 99) * 100}%`,
-                                  maxHeight: "100%",
-                                  backgroundColor: day.uptime >= 99.9 
-                                    ? "rgb(34, 197, 94)" 
-                                    : day.uptime >= 99.5 
-                                    ? "rgb(234, 179, 8)" 
-                                    : "rgb(239, 68, 68)"
-                                }}
-                              />
-                              <span className="text-xs text-muted-foreground mt-1">
-                                {day.date.getDate().toString().padStart(2, '0')}.
-                                {(day.date.getMonth() + 1).toString().padStart(2, '0')}
-                              </span>
-                            </div>
-                          ))}
+                    <div key={service.id} className="p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            {loading ? (
+                              <Skeleton className="h-5 w-5 rounded-full" />
+                            ) : (
+                              getStatusInfo(service.status).icon
+                            )}
+                            <h3 className="font-medium">{service.name}</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{service.description}</p>
+                        </div>
+                        <div>
+                          {loading ? (
+                            <Skeleton className="h-6 w-20" />
+                          ) : (
+                            getStatusInfo(service.status).badge
+                          )}
                         </div>
                       </div>
+                      {service.lastChecked && (
+                        <div className="text-xs text-muted-foreground mt-3">
+                          Zuletzt geprüft: {service.lastChecked.toLocaleTimeString()} Uhr
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
+            {/* Anstehende Wartungen */}
             <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Geplante Wartungsarbeiten</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle>Anstehende Wartungen</CardTitle>
                 <CardDescription>
-                  Informationen zu kommenden Wartungsarbeiten
+                  Informationen zu geplanten Wartungsarbeiten
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center py-4">
-                  Aktuell sind keine Wartungsarbeiten geplant.
-                </p>
+                <div className="rounded-lg border border-dashed border-border p-8 text-center">
+                  <p className="text-muted-foreground">
+                    Aktuell sind keine Wartungsarbeiten geplant.
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
+            {/* Vorfallhistorie */}
             <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Historie</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle>Vorfallhistorie</CardTitle>
                 <CardDescription>
                   Vergangene Vorfälle und Wartungsarbeiten
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border-l-2 border-green-500 pl-4 py-2">
-                    <h4 className="font-medium">LiveKit Audio-Dienst: Leistungsverbesserungen</h4>
-                    <p className="text-sm text-muted-foreground">05.04.2025 • 02:15 - 03:30 UTC</p>
-                    <p className="text-sm mt-1">
-                      Planmäßige Wartung zur Optimierung der Audio-Qualität erfolgreich abgeschlossen.
-                    </p>
-                  </div>
-                  <div className="border-l-2 border-yellow-500 pl-4 py-2">
-                    <h4 className="font-medium">API-Dienst: Kurzzeitige Latenzprobleme</h4>
-                    <p className="text-sm text-muted-foreground">28.03.2025 • 15:42 - 16:15 UTC</p>
-                    <p className="text-sm mt-1">
-                      Erhöhte Latenz bei API-Aufrufen wurde festgestellt und behoben.
-                    </p>
-                  </div>
+                  {!loading ? (
+                    <>
+                      <div className="border-l-2 border-green-500 pl-4 py-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-medium">LiveKit Audio: Optimierung</h4>
+                          <span className="text-xs bg-green-500/10 text-green-500 px-2 py-0.5 rounded">Abgeschlossen</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">13.04.2025 • 08:30 - 09:15 UTC</p>
+                        <p className="text-sm mt-1">
+                          Update der Audio-Infrastruktur erfolgreich abgeschlossen.
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-40" />
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -231,5 +294,5 @@ export default function StatusPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

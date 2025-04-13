@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Plus, LogOut, User } from "lucide-react"
+import { Plus, LogOut, User, Settings } from "lucide-react"
 import { useAuth } from "@/components/providers/AuthProvider"
 import {
   DropdownMenu,
@@ -72,6 +72,12 @@ export function Header() {
                   <DropdownMenuItem className="flex items-center gap-2" disabled>
                     <User className="h-4 w-4" />
                     <span>{user.email}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account" className="flex items-center">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Kontoeinstellungen
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/create" className="md:hidden flex">

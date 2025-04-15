@@ -57,7 +57,7 @@ export default function AdminDashboard() {
         // --- BENUTZERSTATISTIKEN ---
         // Verwende die neue sichere RPC-Funktion statt der unsicheren View
         const { data: userStatsData, error: userStatsError } = await supabase
-          .rpc('get_user_statistics');
+          .rpc('get_user_statistics' as never);
         
         if (userStatsError) {
           console.error("Fehler beim Abrufen der Benutzerstatistiken:", userStatsError);

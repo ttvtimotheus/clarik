@@ -38,6 +38,26 @@ declare global {
     updated_at: string | null;
     is_admin: boolean;
   };
+  
+  // RPC-Rückgabetypen für Admin-Funktionen
+  type GetUserStatisticsResponse = {
+    total_users: number;
+    new_users_30d: number;
+    new_users_7d: number;
+    new_users_24h: number;
+  };
+  
+  type GetTopUsersByParticipationResponse = {
+    id: string;
+    name: string;
+    room_count: number;
+  }[];
+  
+  // Erweiterung für Supabase Client
+  interface SupabaseClientExtensions {
+    rpc<T>(fn: 'get_user_statistics', params?: {}): Promise<{ data: GetUserStatisticsResponse | null, error: any }>;
+    rpc<T>(fn: 'get_top_users_by_participation', params?: {}): Promise<{ data: GetTopUsersByParticipationResponse | null, error: any }>;
+  }
 }
 
 export {};

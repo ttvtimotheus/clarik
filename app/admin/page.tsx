@@ -52,10 +52,75 @@ export default function AdminDashboard() {
       try {
         setLoading(true);
         
-        // Direktes Abrufen der Benutzerdaten und manuelle Berechnung der Statistiken
-        // Statt RPC-Funktionen oder Views, die möglicherweise noch nicht verfügbar sind
+        // Verwende die sicheren RPC-Funktionen für Statistiken
         
         // --- BENUTZERSTATISTIKEN ---
+        // Verwende die neue sichere RPC-Funktion statt der unsicheren View
+        const { data: userStatsData, error: userStatsError } = await supabase
+          .rpc('get_user_statistics');
+        
+        if (userStatsError) {
+          console.error("Fehler beim Abrufen der Benutzerstatistiken:", userStatsError);
+          // Fallback: Wenn die RPC-Funktion noch nicht existiert, manuell abrufen
+          await fetchUserStatsManually();
+        } else if (userStatsData) {
+          setUserStats(userStatsData as UserStats);
+        }
+        
+        // --- RAUMSTATISTIKEN ---
+        // Ideally we'd use room_statistics as RPC too, but for now keep manual fetch
+        const { data: rooms, error: roomsError } = await supabase
+          .from('rooms')
+          .select('created_at, status');
+        
+        if (roomsError) throw roomsError;
+        
+        // Berechne Raumstatistiken manuell
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const roomStatsData: RoomStats = {
+          total_rooms: rooms.length,
+          active_rooms: rooms.filter(r => r.status === 'live').length,
+          new_rooms_30d: rooms.filter(r => new Date(r.created_at) >= thirtyDaysAgo).length,
+          new_rooms_7d: rooms.filter(r => new Date(r.created_at) >= sevenDaysAgo).length
+        };
+        
+        setRoomStats(roomStatsData);
+        
+        // --- TEILNAHMESTATISTIKEN ---
+        const { data: participants, error: participantsError } = await supabase
+          .from('room_participants')
+          .select('user_id, room_id, joined_at');
+        
+        if (participantsError) throw participantsError;
+        
+        // Berechne Teilnahmestatistiken manuell
+        const uniqueRoomIds = new Set(participants.map(p => p.room_id));
+        const uniqueUserIds = new Set(participants.map(p => p.user_id));
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        
+        const participationStatsData: ParticipationStats = {
+          total_participations: participants.length,
+          rooms_with_participants: uniqueRoomIds.size,
+          participating_users: uniqueUserIds.size,
+          new_participations_7d: participants.filter(p => new Date(p.joined_at) >= sevenDaysAgo).length,
+          new_participations_24h: participants.filter(p => new Date(p.joined_at) >= oneDayAgo).length
+        };
+        
+        setParticipationStats(participationStatsData);
+        
+      } catch (error) {
+        console.error("Fehler beim Laden der Dashboard-Daten:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    // Fallback-Funktion für Benutzerstatistiken, falls die RPC noch nicht existiert
+    async function fetchUserStatsManually() {
+      try {
         const { data: users, error: usersError } = await supabase
           .from('users')
           .select('created_at');
@@ -76,49 +141,8 @@ export default function AdminDashboard() {
         };
         
         setUserStats(userStatsData);
-        
-        // --- RAUMSTATISTIKEN ---
-        const { data: rooms, error: roomsError } = await supabase
-          .from('rooms')
-          .select('created_at, status');
-        
-        if (roomsError) throw roomsError;
-        
-        // Berechne Raumstatistiken manuell
-        const roomStatsData: RoomStats = {
-          total_rooms: rooms.length,
-          active_rooms: rooms.filter(r => r.status === 'live').length,
-          new_rooms_30d: rooms.filter(r => new Date(r.created_at) >= thirtyDaysAgo).length,
-          new_rooms_7d: rooms.filter(r => new Date(r.created_at) >= sevenDaysAgo).length
-        };
-        
-        setRoomStats(roomStatsData);
-        
-        // --- TEILNAHMESTATISTIKEN ---
-        const { data: participants, error: participantsError } = await supabase
-          .from('room_participants')
-          .select('user_id, room_id, joined_at');
-        
-        if (participantsError) throw participantsError;
-        
-        // Berechne Teilnahmestatistiken manuell
-        const uniqueRoomIds = new Set(participants.map(p => p.room_id));
-        const uniqueUserIds = new Set(participants.map(p => p.user_id));
-        
-        const participationStatsData: ParticipationStats = {
-          total_participations: participants.length,
-          rooms_with_participants: uniqueRoomIds.size,
-          participating_users: uniqueUserIds.size,
-          new_participations_7d: participants.filter(p => new Date(p.joined_at) >= sevenDaysAgo).length,
-          new_participations_24h: participants.filter(p => new Date(p.joined_at) >= oneDayAgo).length
-        };
-        
-        setParticipationStats(participationStatsData);
-        
       } catch (error) {
-        console.error("Fehler beim Laden der Dashboard-Daten:", error);
-      } finally {
-        setLoading(false);
+        console.error("Fehler beim manuellen Abrufen der Benutzerstatistiken:", error);
       }
     }
     

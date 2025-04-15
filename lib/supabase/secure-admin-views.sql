@@ -62,3 +62,36 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================================
+-- Fix für SECURITY DEFINER Problem in public.user_statistics
+-- ============================================================================
+
+-- 1. Lösche die bestehende View im public-Schema
+DROP VIEW IF EXISTS public.user_statistics;
+
+-- 2. Erstelle eine sichere Funktion als Ersatz für die View
+CREATE OR REPLACE FUNCTION public.get_user_statistics()
+RETURNS TABLE (
+  total_users BIGINT,
+  new_users_30d BIGINT,
+  new_users_7d BIGINT,
+  new_users_24h BIGINT
+) AS $$
+BEGIN
+  -- Nur Administratoren dürfen die Statistiken sehen
+  IF public.is_admin() THEN
+    RETURN QUERY 
+    SELECT
+      COUNT(*)::BIGINT AS total_users,
+      COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END)::BIGINT AS new_users_30d,
+      COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END)::BIGINT AS new_users_7d,
+      COUNT(CASE WHEN created_at > NOW() - INTERVAL '1 day' THEN 1 END)::BIGINT AS new_users_24h
+    FROM
+      public.users;
+  ELSE
+    -- Gib leere Statistiken für Nicht-Administratoren zurück
+    RETURN QUERY SELECT 0::BIGINT, 0::BIGINT, 0::BIGINT, 0::BIGINT;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
